@@ -1,0 +1,19 @@
+{
+    "token": "",
+    "command_prefix": "!",
+    "autosend": 100,
+    "command_channel": [
+      
+    ],
+    "require_command_channel": 1,
+    "blacklist_file": "blacklist.json",
+    "cooldown": 0,
+    "admins": [],
+    "ignored_users": [],
+    "min_length": 1,
+    "max_length": 500,
+    "active_server": ,
+    "scan_cats": [
+      
+    ]
+  }
