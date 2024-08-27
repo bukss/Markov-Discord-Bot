@@ -59,7 +59,8 @@ def blacklisted(chat):
 async def process_message(message, with_commands = True):
     if    message.author == client.user \
        or message.author.id in client.config["ignored_users"] \
-       or message.author.bot:
+       or message.author.bot \
+       or message.channel.id in client.config["ignored_channels"]:
         return
     text = message.content
 
@@ -112,10 +113,11 @@ def edit_blacklist(action, field, value):
     return "Successfully updated blacklist"
 
 def edit_config(action, field, value):
-    ADD_REMOVE_ABLES = ["admins", "ignored_users", "command_channel", "scan_cats"]
+    ADD_REMOVE_ABLES = ["admins", "ignored_channels", "ignored_users", "command_channel", "scan_cats"]
     MUTABLE = ["autosend", "command_channel",
                 "cooldown", "admins", "ignored_users", "scan_cats"
-                "admins", "min_length", "max_length", "maxchars", ]
+                "admins", "min_length", "max_length", "maxchars", 
+                "ignored_channels"]
     NUMERICALS = ["cooldown", "autosend", "min_length", "max_length", "ignored_users", "admins"]
     with open("config.json", "r") as f:
         working_config = json.load(f)
@@ -165,6 +167,7 @@ async def chain(ctx):
     chain = model.generate_chain(min_length = client.config["min_length"], max_length=config["max_length"])
     logger.info(f"Made a chain: {chain}")
     await ctx.send(chain)
+    client.message_count -= 1
 
 
 @client.command(name="blacklist")
@@ -192,6 +195,8 @@ async def on_ready():
     guild = client.get_guild(config["active_server"])
     count = 0
     for text_chan in guild.text_channels:
+        if text_chan.id in client.config["ignored_channels"]:
+            continue
         if (text_chan.category_id == None or text_chan.category_id in client.config["scan_cats"]):
             async for message in text_chan.history(limit = 50):
                 await process_message(message, with_commands=False)
